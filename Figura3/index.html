@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cubo OPAL Animado</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #ffffff;
+      padding: 30px;
+      overflow-x: hidden;
+    }
+
+    .diagram-container {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Animación del Título Principal */
+    .main-title {
+      font-size: 34px;
+      font-weight: 900;
+      color: #000000;
+      margin-left: 5px;
+      margin-bottom: 2px;
+      letter-spacing: -0.5px;
+      animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Estructura del árbol con la línea principal */
+    .tree-structure {
+      width: 100%;
+      position: relative;
+      padding-left: 60px;
+      margin-top: 4px;
+    }
+
+    /* Línea vertical principal con animación de crecimiento */
+    .tree-structure::before {
+      content: '';
+      position: absolute;
+      left: 22px;
+      top: 0;
+      bottom: 30px;
+      width: 3.5px;
+      background-color: #000000;
+      border-radius: 2px;
+      transform-origin: top;
+      animation: growLine 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s;
+      transform: scaleY(0);
+    }
+
+    /* Items con animación de entrada escalonada */
+    .list-item {
+      position: relative;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateX(-20px);
+      animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Tiempos escalonados para cada ítem */
+    .list-item:nth-child(1) { animation-delay: 0.4s; }
+    .list-item:nth-child(2) { animation-delay: 0.55s; }
+    .list-item:nth-child(3) { animation-delay: 0.7s; }
+    .list-item:nth-child(4) { animation-delay: 0.85s; }
+    .list-item:nth-child(5) { animation-delay: 1.0s; }
+
+    /* Líneas horizontales conectoras */
+    .list-item::before {
+      content: '';
+      position: absolute;
+      left: -38px;
+      top: 50%;
+      width: 38px;
+      height: 3.5px;
+      background-color: #000000;
+      transform: translateY(-50%);
+    }
+
+    /* Tarjetas/Cajas */
+    .card {
+      position: relative;
+      width: 100%;
+      background: #ffffff;
+      border: 3px solid #000000;
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    }
+
+    /* Puntero triangular */
+    .card::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      border-right: 10px solid #000000;
+      z-index: 2;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-right: 7px solid #ffffff;
+      z-index: 3;
+    }
+
+    .card-text {
+      font-size: 24px;
+      color: #000000;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .card-title {
+      font-weight: 600;
+    }
+
+    .card-subtitle {
+      font-weight: 400;
+      font-size: 22px;
+    }
+
+    /* Íconos e Animación de Balanceo */
+    .icon-container {
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transform-origin: center bottom;
+      animation: swing 3s ease-in-out infinite;
+    }
+
+    .card:hover .icon-container {
+      animation: swingFast 0.8s ease-in-out infinite;
+    }
+
+    .icon-container svg {
+      width: 100%;
+      height: 100%;
+      stroke: #000000;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Footer Caption */
+    .footer-caption {
+      margin-top: 25px;
+      font-size: 20px;
+      color: #000000;
+      text-align: center;
+      font-weight: 400;
+      opacity: 0;
+      animation: fadeIn 0.8s ease forwards 1.2s;
+    }
+
+    /* KEYFRAMES DE ANIMACIONES */
+    @keyframes growLine {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(-25px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* Animación de Balanceo (Swing) */
+    @keyframes swing {
+      0%, 100% { transform: rotate(0deg); }
+      20% { transform: rotate(10deg); }
+      40% { transform: rotate(-8deg); }
+      60% { transform: rotate(5deg); }
+      80% { transform: rotate(-3deg); }
+    }
+
+    @keyframes swingFast {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(14deg); }
+      75% { transform: rotate(-14deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="diagram-container">
+    <h1 class="main-title">Cubo OPAL</h1>
+
+    <div class="tree-structure">
+      
+      <div class="list-item">
+        <div class="card">
+          <div class="card-text">
+            <span class="card-title">Drill-Down</span>
+            <span class="card-subtitle">(Más detalle)</span>
+          </div>
+          <div class="icon-container">
+            <svg viewBox="0 0 24 24">
+              <circle cx="10.5" cy="10.5" r="6" stroke-width="2.5"></circle>
+              <line x1="15" y1="15" x2="21" y2="21" stroke-width="3.5"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-item">
+        <div class="card">
+          <div class="card-text">
+            <span class="card-title">Roll-up</span>
+            <span class="card-subtitle">(Más agregado)</span>
+          </div>
+          <div class="icon-container">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3.5l7 4v7.5l-7 4-7-4V7.5l7-4z" stroke-width="2"></path>
+              <path d="M12 11.5l7-4"></path>
+              <path d="M12 11.5v7.5"></path>
+              <path d="M12 11.5L5 7.5"></path>
+              <circle cx="18.5" cy="6" r="3" fill="white" stroke="black" stroke-width="1.8"></circle>
+              <line x1="18.5" y1="4.5" x2="18.5" y2="7.5" stroke-width="1.6"></line>
+              <line x1="17" y1="6" x2="20" y2="6" stroke-width="1.6"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-item">
+        <div class="card">
+          <div class="card-text">
+            <span class="card-title">Slice</span>
+            <span class="card-subtitle">(Una dimensión)</span>
+          </div>
+          <div class="icon-container">
+            <svg viewBox="0 0 24 24">
+              <rect x="7" y="7" width="10" height="10" rx="2" stroke-width="2.2" fill="none"></rect>
+              <path d="M2 12h3.5m-3.5 0l1.8-1.8M2 12l1.8 1.8" stroke-width="1.8"></path>
+              <path d="M22 12h-3.5m3.5 0l-1.8-1.8M22 12l-1.8 1.8" stroke-width="1.8"></path>
+              <path d="M12 2v3.5m0-3.5l-1.8 1.8M12 2l1.8 1.8" stroke-width="1.8"></path>
+              <path d="M12 22v-3.5m0 3.5l-1.8-1.8M12 22l1.8-1.8" stroke-width="1.8"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-item">
+        <div class="card">
+          <div class="card-text">
+            <span class="card-title">Dice</span>
+            <span class="card-subtitle">(múltiples filtros)</span>
+          </div>
+          <div class="icon-container">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.5 4h11l-4 5v5.5l-3 1.5v-7L2.5 4z" stroke-width="2"></path>
+              <path d="M9.5 7.5h11l-4 5v5.5l-3 1.5v-7L9.5 7.5z" stroke-width="2" fill="white"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="list-item">
+        <div class="card">
+          <div class="card-text">
+            <span class="card-title">Pivot</span>
+            <span class="card-subtitle">(reorganización)</span>
+          </div>
+          <div class="icon-container">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="4.5" r="1.8" fill="black"></circle>
+              <path d="M9.5 9a2.5 2.5 0 0 1 5 0" stroke-width="1.5"></path>
+              
+              <circle cx="5" cy="17.5" r="1.8" fill="black"></circle>
+              <path d="M2.5 22a2.5 2.5 0 0 1 5 0" stroke-width="1.5"></path>
+
+              <circle cx="19" cy="17.5" r="1.8" fill="black"></circle>
+              <path d="M16.5 22a2.5 2.5 0 0 1 5 0" stroke-width="1.5"></path>
+
+              <path d="M12 9.5v3h7v2.5" stroke-width="1.8"></path>
+              <path d="M12 12.5H5v2.5" stroke-width="1.8"></path>
+              <path d="M19 15l1.5-1.5M19 15l-1.5-1.5" stroke-width="1.8"></path>
+              <path d="M5 15l1.5-1.5M5 15l-1.5-1.5" stroke-width="1.8"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="footer-caption">Guía de operaciones de Cubo OPAL</p>
+  </div>
+
+</body>
+</html>
