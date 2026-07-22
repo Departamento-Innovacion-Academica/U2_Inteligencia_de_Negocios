@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gráfico de Pastel (Conceptual)</title>
+  <!-- Importar fuente Poppins de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Animación Látigo (Whip Entrance) para la tarjeta principal */
+    @keyframes latigoEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(-350px) rotate(-18deg) scale(0.3);
+      }
+      55% {
+        opacity: 1;
+        transform: translateY(35px) rotate(9deg) scale(1.08);
+      }
+      72% {
+        transform: translateY(-15px) rotate(-4deg) scale(0.96);
+      }
+      86% {
+        transform: translateY(8px) rotate(2deg) scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg) scale(1);
+      }
+    }
+
+    /* Contenedor principal exterior */
+    .outer-card {
+      background-color: #2b2b2b;
+      border-radius: 20px;
+      padding: 28px 36px 36px;
+      width: 620px;
+      color: #ffffff;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      
+      /* Aplicación de la animación látigo */
+      animation: latigoEntrance 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      will-change: transform, opacity;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 500;
+      margin-bottom: 22px;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+    }
+
+    /* Contenedor interior */
+    .inner-card {
+      background-color: #242424;
+      border: 1px solid #3d3d3d;
+      border-radius: 16px;
+      padding: 35px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 20px;
+    }
+
+    .chart-container {
+      width: 240px;
+      height: 240px;
+      position: relative;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Estilos y animación para cada sector del gráfico */
+    .slice {
+      fill: none;
+      stroke-width: 100;
+      transform-origin: 100px 100px;
+      transition: stroke-dashoffset 0.8s ease-out;
+    }
+
+    /* Animaciones secuenciales para cada porción */
+    @keyframes drawSlice {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    /* Porción A (40% - Morado) */
+    .slice-purple {
+      stroke: #8e24aa;
+      stroke-dasharray: 125.66 314.16;
+      stroke-dashoffset: 125.66;
+      transform: rotate(-90deg);
+      animation: drawSlice 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.9s forwards;
+    }
+
+    /* Porción B (30% - Azul) */
+    .slice-blue {
+      stroke: #1e88e5;
+      stroke-dasharray: 94.25 314.16;
+      stroke-dashoffset: 94.25;
+      transform: rotate(54deg);
+      animation: drawSlice 0.6s cubic-bezier(0.4, 0, 0.2, 1) 1.5s forwards;
+    }
+
+    /* Porción C (20% - Verde) */
+    .slice-green {
+      stroke: #43a047;
+      stroke-dasharray: 62.83 314.16;
+      stroke-dashoffset: 62.83;
+      transform: rotate(162deg);
+      animation: drawSlice 0.5s cubic-bezier(0.4, 0, 0.2, 1) 2.0s forwards;
+    }
+
+    /* Porción C (10% - Marrón) */
+    .slice-brown {
+      stroke: #8d4015;
+      stroke-dasharray: 31.42 314.16;
+      stroke-dashoffset: 31.42;
+      transform: rotate(234deg);
+      animation: drawSlice 0.4s cubic-bezier(0.4, 0, 0.2, 1) 2.4s forwards;
+    }
+
+    /* Leyenda Lateral */
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #ffffff;
+      opacity: 0;
+      animation: fadeInLegend 0.4s ease forwards;
+    }
+
+    .legend-item:nth-child(1) { animation-delay: 1.1s; }
+    .legend-item:nth-child(2) { animation-delay: 1.6s; }
+    .legend-item:nth-child(3) { animation-delay: 2.1s; }
+    .legend-item:nth-child(4) { animation-delay: 2.5s; }
+
+    @keyframes fadeInLegend {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .color-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .bg-purple { background-color: #8e24aa; }
+    .bg-blue   { background-color: #1e88e5; }
+    .bg-green  { background-color: #43a047; }
+    .bg-brown  { background-color: #8d4015; }
+  </style>
+</head>
+<body>
+
+  <!-- Bloque principal con animación de látigo -->
+  <div class="outer-card">
+    <h2 class="title">Gráfico de Pastel (Conceptual)</h2>
+    
+    <div class="inner-card">
+      <div class="chart-container">
+        <!-- SVG interactivo y animado circularmente -->
+        <svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="100" fill="#242424" />
+
+          <!-- Porciones del gráfico sin texto interior -->
+          <circle class="slice slice-purple" cx="100" cy="100" r="50" />
+          <circle class="slice slice-blue" cx="100" cy="100" r="50" />
+          <circle class="slice slice-green" cx="100" cy="100" r="50" />
+          <circle class="slice slice-brown" cx="100" cy="100" r="50" />
+
+          <!-- Líneas divisorias oscuras entre porciones -->
+          <line x1="100" y1="100" x2="100" y2="0" stroke="#242424" stroke-width="4" />
+          <line x1="100" y1="100" x2="158.78" y2="180.90" stroke="#242424" stroke-width="4" />
+          <line x1="100" y1="100" x2="4.89" y2="130.90" stroke="#242424" stroke-width="4" />
+          <line x1="100" y1="100" x2="41.22" y2="19.10" stroke="#242424" stroke-width="4" />
+        </svg>
+      </div>
+
+      <!-- Leyenda con los valores exactos -->
+      <div class="legend">
+        <div class="legend-item">
+          <div class="color-box bg-purple"></div>
+          <span>A &nbsp;·&nbsp; 40%</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-box bg-blue"></div>
+          <span>B &nbsp;·&nbsp; 30%</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-box bg-green"></div>
+          <span>C &nbsp;·&nbsp; 20%</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-box bg-brown"></div>
+          <span>C &nbsp;·&nbsp; 10%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
