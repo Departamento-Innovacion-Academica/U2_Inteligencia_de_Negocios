@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Interactivo Animado</title>
+  
+  <!-- Iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Bibliotecas de Gráficos y Animación -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #E2E8F0;
+      --sidebar-bg: #113255;
+      --accent-orange: #FF9800;
+      --card-bg: #FFFFFF;
+      --text-dark: #2d3748;
+      --text-light: #8fa3be;
+      --shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+    body {
+      background-color: var(--bg-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow: hidden; /* Evitar scrollbars durante la intro */
+    }
+
+    /* Contenedor Principal con Neumorfismo Soft */
+    .dashboard-container {
+      display: flex;
+      width: 1100px;
+      height: 650px;
+      background-color: #E9EEF4;
+      border-radius: 24px;
+      box-shadow: 15px 15px 40px rgba(0,0,0,0.06), -15px -15px 40px rgba(255,255,255,0.7);
+      overflow: hidden;
+      opacity: 0; /* Para la animación de entrada */
+    }
+
+    /* --- SIDEBAR --- */
+    .sidebar {
+      width: 240px;
+      background-color: var(--sidebar-bg);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 0;
+    }
+
+    .profile { text-align: center; margin-bottom: 30px; }
+    .avatar {
+      width: 80px; height: 80px;
+      background-color: #1a426e;
+      border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      margin: 0 auto 12px;
+      font-size: 40px;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    .profile h3 { font-size: 18px; letter-spacing: 1px; font-weight: 600; }
+    .profile p { font-size: 11px; color: var(--text-light); }
+
+    .menu { width: 100%; list-style: none; }
+    .menu li a {
+      display: flex; align-items: center;
+      padding: 14px 35px;
+      color: #8fa3be;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+
+    .menu li a i { width: 25px; margin-right: 15px; }
+
+    .menu li.active a, .menu li a:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.03);
+      border-left-color: var(--accent-orange);
+    }
+
+    /* --- MAIN CONTENT --- */
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .header h2 { color: var(--text-dark); font-weight: 500; font-size: 24px; }
+    .menu-btn { font-size: 20px; cursor: pointer; color: #4a5568; }
+
+    /* Tarjetas de Métricas Superiores */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 15px 20px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.07); }
+    .card.dark { background-color: var(--sidebar-bg); color: white; }
+
+    .card-title { font-size: 13px; color: #718096; }
+    .card.dark .card-title { color: var(--text-light); }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-top: 5px;
+    }
+    .card.dark .card-value { color: #ffffff; }
+
+    .card-icon {
+      position: absolute; top: 15px; right: 15px;
+      font-size: 14px;
+    }
+    .card-icon.orange { color: var(--accent-orange); }
+
+    /* Layout Inferior */
+    .dashboard-body {
+      display: grid;
+      grid-template-columns: 2.2fr 1fr;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .charts-left { display: flex; flex-direction: column; gap: 15px; }
+
+    .chart-box {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .chart-box-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .chart-box-header h4 { color: #4a5568; font-size: 15px; }
+
+    .btn-orange {
+      background: var(--accent-orange);
+      color: white; border: none;
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 11px; font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-orange:hover { background: #e68a00; transform: scale(1.05); }
+
+    /* Panel Derecho */
+    .right-panel {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 25px 15px;
+      display: flex; flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+    }
+
+    .donut-container { position: relative; width: 140px; height: 140px; }
+    .donut-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 22px; font-weight: bold; color: var(--text-dark);
+    }
+
+    .info-list { width: 100%; list-style: none; margin: 15px 0; }
+    .info-list li {
+      text-align: center; padding: 7px 0;
+      font-size: 12px; color: #718096;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    /* Calendario Mini */
+    .mini-calendar { font-size: 8px; width: 120px; }
+    .calendar-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 2px; text-align: center; margin-top: 5px;
+    }
+    .cal-day { color: #718096; font-weight: bold; }
+    .cal-date { padding: 2px; border-radius: 2px; color: #4a5568; transition: background 0.3s; }
+    .cal-date.active { background: var(--sidebar-bg); color: white; }
+    .cal-date.highlight { background: var(--accent-orange); color: white; }
+
+    /* Contenedores de Gráficos (fijos para Chart.js) */
+    .chart-container-bar { height: 160px; }
+    .chart-container-wave { height: 110px; }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-container" id="dashboard">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="profile">
+        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+        <h3>JOHN DON</h3>
+        <p>Johndon@company.com</p>
+      </div>
+      <ul class="menu">
+        <li class="active"><a href="#"><i class="fa-solid fa-house"></i> home</a></li>
+        <li><a href="#"><i class="fa-solid fa-folder"></i> file</a></li>
+        <li><a href="#"><i class="fa-solid fa-envelope"></i> messages</a></li>
+        <li><a href="#"><i class="fa-solid fa-bell"></i> notification</a></li>
+        <li><a href="#"><i class="fa-solid fa-location-dot"></i> location</a></li>
+        <li><a href="#"><i class="fa-solid fa-chart-pie"></i> graph</a></li>
+      </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="header">
+        <h2>Dashboard User</h2>
+        <i class="fa-solid fa-bars menu-btn"></i>
+      </div>
+
+      <!-- CARDS SUPERIORES CON NÚMEROS ANIMADOS -->
+      <div class="cards-grid">
+        <div class="card dark">
+          <span class="card-title">Earning</span>
+          <div class="card-icon"><i class="fa-solid fa-dollar-sign"></i></div>
+          <div class="card-value" id="count-earning" data-target="628">$ 0</div>
+        </div>
+        <div class="card">
+          <span class="card-title">Share</span>
+          <div class="card-icon orange"><i class="fa-solid fa-share-nodes"></i></div>
+          <div class="card-value" id="count-share" data-target="2434">0</div>
+        </div>
+        <div class="card">
+          <span class="card-title">Likes</span>
+          <div class="card-icon orange"><i class="fa-solid fa-thumbs-up"></i></div>
+          <div class="card-value" id="count-likes" data-target="1259">0</div>
+        </div>
+        <div class="card">
+          <span class="card-title">Rating</span>
+          <div class="card-icon orange"><i class="fa-solid fa-star"></i></div>
+          <div class="card-value" id="count-rating" data-target="8.5">0</div>
+        </div>
+      </div>
+
+      <div class="dashboard-body">
+        <!-- IZQUIERDA: GRÁFICOS -->
+        <div class="charts-left">
+          <!-- BARRAS ANIMADAS -->
+          <div class="chart-box">
+            <div class="chart-box-header">
+              <h4>Result</h4>
+              <button class="btn-orange">Check Now</button>
+            </div>
+            <div class="chart-container-bar">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+
+          <!-- ONDAS ANIMADAS Y CALENDARIO -->
+          <div class="chart-box" style="display: flex; gap: 15px; align-items: center;">
+            <div style="flex: 1;">
+              <div class="chart-container-wave">
+                <canvas id="waveChart"></canvas>
+              </div>
+            </div>
+            <div class="mini-calendar" id="calendar">
+              <div class="calendar-grid">
+                <span class="cal-day" style="color:red">S</span><span class="cal-day">M</span><span class="cal-day">T</span><span class="cal-day">W</span><span class="cal-day">T</span><span class="cal-day">F</span><span class="cal-day">S</span>
+                <!-- Fila 1 -->
+                <span class="cal-date"></span><span class="cal-date"></span><span class="cal-date"></span><span class="cal-date"></span><span class="cal-date"></span><span class="cal-date"></span><span class="cal-date">1</span>
+                <!-- Fila 2 -->
+                <span class="cal-date" style="color:red">2</span><span class="cal-date active">3</span><span class="cal-date">4</span><span class="cal-date">5</span><span class="cal-date">6</span><span class="cal-date">7</span><span class="cal-date">8</span>
+                <!-- Fila 3 -->
+                <span class="cal-date" style="color:red">9</span><span class="cal-date">10</span><span class="cal-date">11</span><span class="cal-date active">12</span><span class="cal-date active">13</span><span class="cal-date">14</span><span class="cal-date">15</span>
+                <!-- Fila 4 -->
+                <span class="cal-date" style="color:red">16</span><span class="cal-date">17</span><span class="cal-date">18</span><span class="cal-date">19</span><span class="cal-date">20</span><span class="cal-date">21</span><span class="cal-date">22</span>
+                <!-- Fila 5 -->
+                <span class="cal-date" style="color:red">23</span><span class="cal-date">24</span><span class="cal-date highlight">25</span><span class="cal-date highlight">26</span><span class="cal-date">27</span><span class="cal-date">28</span><span class="cal-date">29</span>
+                <!-- Fila 6 -->
+                <span class="cal-date" style="color:red">30</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DERECHA: DONA ANIMADA -->
+        <div class="right-panel">
+          <div class="donut-container">
+            <canvas id="donutChart"></canvas>
+            <div class="donut-text" id="donut-perc">0%</div>
+          </div>
+          <ul class="info-list">
+            <li>Lorem ipsum dolor</li>
+            <li>Sit amet consectetur</li>
+            <li>Adipiscing elit sed</li>
+            <li>Do eiusmod tempor</li>
+          </ul>
+          <button class="btn-orange" style="width: 100%; padding: 10px;">Check Now</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // --- INICIALIZACIÓN GLOBAL ---
+    const mainColor = '#113255';
+    const orangeColor = '#FF9800';
+
+    // Desactivar animaciones por defecto de Chart.js para controlarlas nosotros
+    Chart.defaults.animation = false;
+
+    // --- 1. ANIMACIÓN DE ENTRADA (GSAP) ---
+    window.addEventListener('load', () => {
+      gsap.to("#dashboard", { opacity: 1, duration: 1, ease: "power2.out", onComplete: startAnimations });
+    });
+
+    function startAnimations() {
+      animateNumbers();
+      initBarChart();
+      initWaveChart();
+      initDonutChart();
+      startMetricsInteraction(); // Métricas que se mueven
+    }
+
+    // --- 2. ANIMACIÓN DE NÚMEROS ( GSAP Counter ) ---
+    function animateNumbers() {
+      const counters = [
+        { id: "#count-earning", prefix: "$ " },
+        { id: "#count-share", prefix: "" },
+        { id: "#count-likes", prefix: "" },
+        { id: "#count-rating", prefix: "", decimals: 1 }
+      ];
+
+      counters.forEach(counter => {
+        const el = document.querySelector(counter.id);
+        const target = parseFloat(el.getAttribute('data-target'));
+        const obj = { val: 0 };
+
+        gsap.to(obj, {
+          val: target,
+          duration: 2,
+          ease: "power3.out",
+          onUpdate: () => {
+            let value = obj.val;
+            if (counter.decimals) {
+              value = value.toFixed(counter.decimals).replace('.', ',');
+            } else {
+              value = Math.floor(value);
+            }
+            el.innerText = `${counter.prefix}${value}`;
+          }
+        });
+      });
+    }
+
+    // --- 3. GRÁFICO DE BARRAS (Creciendo) ---
+    let barChart;
+    function initBarChart() {
+      const ctx = document.getElementById('barChart').getContext('2d');
+      const data2019 = [20, 27, 19, 36, 26, 36, 27, 32, 25];
+      const data2020 = [38, 44, 33, 15, 30, 47, 24, 20, 28];
+
+      barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUNE', 'JULY', 'AUG', 'SEP'],
+          datasets: [
+            { label: '2019', data: data2019.map(() => 0), backgroundColor: orangeColor, borderRadius: 3, barPercentage: 0.6 },
+            { label: '2020', data: data2020.map(() => 0), backgroundColor: mainColor, borderRadius: 3, barPercentage: 0.6 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+            y: { min: 0, max: 50, ticks: { stepSize: 10, font: { size: 9 } } }
+          }
+        }
+      });
+
+      // Animación personalizada: actualizar datos secuencialmente
+      gsap.to(barChart.data.datasets[0].data, {
+        endArray: data2019, duration: 1.5, ease: "power2.out", onUpdate: () => barChart.update('none')
+      });
+      gsap.to(barChart.data.datasets[1].data, {
+        endArray: data2020, duration: 1.5, ease: "power2.out", delay: 0.2, onUpdate: () => barChart.update('none')
+      });
+    }
+
+    // --- 4. GRÁFICO CIRCULAR (Llenándose punto a punto) ---
+    function initDonutChart() {
+      const ctx = document.getElementById('donutChart').getContext('2d');
+      const targetPerc = 45;
+      
+      const donutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          datasets: [{
+            data: [0, 100], // Empieza vacío
+            backgroundColor: [orangeColor, mainColor],
+            borderWidth: 0,
+            circumference: 0 // Empezamos sin circunferencia dibujada
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '80%',
+          plugins: { tooltip: { enabled: false } },
+          rotation: -90, // Empezar arriba
+        }
+      });
+
+      // Animación GSAP para la circunferencia y los datos
+      const animObj = { draw: 0, perc: 0 };
+      gsap.to(animObj, {
+        draw: 360, // Una vuelta completa de dibujo
+        perc: targetPerc,
+        duration: 2,
+        ease: "power2.inOut",
+        onUpdate: () => {
+          // Actualizar el "quesito" naranja
+          donutChart.data.datasets[0].data = [animObj.perc, 100 - animObj.perc];
+          // Actualizar cuánto del círculo está dibujado (efecto llenado radial)
+          donutChart.data.datasets[0].circumference = animObj.draw;
+          donutChart.update('none');
+          // Actualizar texto central
+          document.getElementById('donut-perc').innerText = `${Math.floor(animObj.perc)}%`;
+        }
+      });
+    }
+
+    // --- 5. GRÁFICO DE ONDAS (Animación contínua suave) ---
+    let waveChart;
+    function initWaveChart() {
+      const ctx = document.getElementById('waveChart').getContext('2d');
+      
+      const gradOrange = ctx.createLinearGradient(0, 0, 0, 100);
+      gradOrange.addColorStop(0, 'rgba(255, 152, 0, 0.4)');
+      gradOrange.addColorStop(1, 'rgba(255, 152, 0, 0.0)');
+
+      const baseData = [20, 40, 20, 50, 15, 40, 10, 20];
+
+      waveChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['','','','','','','',''],
+          datasets: [{
+            data: baseData,
+            borderColor: orangeColor,
+            backgroundColor: gradOrange,
+            fill: true,
+            tension: 0.4, pointRadius: 0, borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { display: false }, y: { display: false, min: 0, max: 60 } }
+        }
+      });
+
+      // Animación de "onda" infinita moviendo los puntos base suavemente
+      gsap.to(waveChart.data.datasets[0].data, {
+        endArray: baseData.map(v => v + (Math.random() - 0.5) * 10), // Pequeña variación aleatoria
+        duration: 2,
+        repeat: -1, // Infinito
+        yoyo: true, // Va y vuelve
+        ease: "sine.inOut",
+        onUpdate: () => waveChart.update('none')
+      });
+    }
+
+    // --- 6. INTERACCIÓN DE MÉTRICAS (Moverse de vez en cuando) ---
+    function startMetricsInteraction() {
+      // A. Mover sutilmente las tarjetas superiores aleatoriamente
+      const cards = document.querySelectorAll('.cards-grid .card');
+      
+      function moveCard() {
+        const randomCard = cards[Math.floor(Math.random() * cards.length)];
+        gsap.to(randomCard, {
+          y: -5, duration: 0.4, yoyo: true, repeat: 1, ease: "power1.inOut"
+        });
+        // Siguiente movimiento entre 4 y 8 segundos
+        setTimeout(moveCard, 4000 + Math.random() * 4000);
+      }
+      setTimeout(moveCard, 5000); // Empezar tras 5s
+
+      // B. Resaltar fechas del calendario aleatoriamente (Efecto actividad)
+      const dates = document.querySelectorAll('#calendar .cal-date:not(:empty)');
+      
+      function highlightDate() {
+        // Quitar highlights anteriores sutiles
+        dates.forEach(d => d.style.background = '');
+
+        const randomDate = dates[Math.floor(Math.random() * dates.length)];
+        // Si no es una de las fijas (active/highlight del HTML)
+        if(!randomDate.classList.contains('active') && !randomDate.classList.contains('highlight')) {
+            gsap.fromTo(randomDate, 
+                { background: 'rgba(255, 152, 0, 0)' },
+                { background: 'rgba(255, 152, 0, 0.2)', duration: 0.5, yoyo: true, repeat: 1 }
+            );
+        }
+        
+        setTimeout(highlightDate, 2000 + Math.random() * 2000);
+      }
+      highlightDate();
+    }
+  </script>
+</body>
+</html>
