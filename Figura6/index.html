@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flujo de Procesamiento de Datos - Animado</title>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f4f9;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Contenedor principal con entrada suave */
+    .flow-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      background-color: #e0d9f4;
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      flex-wrap: wrap;
+    }
+
+    /* Estilo de Tarjetas */
+    .card {
+      background-color: #6b52be;
+      color: #ffffff;
+      width: 170px;
+      height: 170px;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      
+      /* Animación de Entrada Estilo Látigo */
+      opacity: 0;
+      animation: whipIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      
+      /* Transición suave para el Hover */
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Interacción Hover en Tarjetas */
+    .card:hover {
+      transform: translateY(-8px) scale(1.03) !important;
+      box-shadow: 0 12px 22px rgba(107, 82, 190, 0.35);
+    }
+
+    /* Íconos SVG */
+    .card svg {
+      width: 60px;
+      height: 60px;
+      stroke: #ffffff;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      margin-bottom: 12px;
+      filter: drop-shadow(0px 2px 4px rgba(255, 255, 255, 0.4));
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover svg {
+      transform: scale(1.1);
+    }
+
+    /* Texto */
+    .card span {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* Flecha Separadora con Animación de Látigo Horizontal */
+    .arrow-icon {
+      width: 24px;
+      height: 24px;
+      fill: #6b52be;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      animation: whipArrow 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    /* ----------------------------------------------------
+       RETRASOS EN SECUENCIA (Staggered Delays)
+    ---------------------------------------------------- */
+    .item-1 { animation-delay: 0.1s; } /* Tarjeta Datos */
+    .item-2 { animation-delay: 0.3s; } /* Flecha 1 */
+    .item-3 { animation-delay: 0.45s; } /* Tarjeta KPIs */
+    .item-4 { animation-delay: 0.65s; } /* Flecha 2 */
+    .item-5 { animation-delay: 0.8s; } /* Tarjeta Dashboard */
+    .item-6 { animation-delay: 1.0s; } /* Flecha 3 */
+    .item-7 { animation-delay: 1.15s; } /* Tarjeta Decisiones */
+
+    /* ----------------------------------------------------
+       ANIMACIONES KEYFRAMES (Efecto Látigo)
+    ---------------------------------------------------- */
+    
+    /* Látigo para Tarjetas: Entran desde la izquierda, rotadas y sobredisparadas */
+    @keyframes whipIn {
+      0% {
+        opacity: 0;
+        transform: translateX(-120px) rotate(-15deg) scale(0.6);
+      }
+      70% {
+        opacity: 1;
+        transform: translateX(10px) rotate(3deg) scale(1.05); /* Sobredisparo (látigo) */
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg) scale(1);
+      }
+    }
+
+    /* Látigo para Flechas: Estiramiento rápido tipo resorte */
+    @keyframes whipArrow {
+      0% {
+        opacity: 0;
+        transform: scaleX(0) translateX(-20px);
+      }
+      75% {
+        opacity: 1;
+        transform: scaleX(1.4) translateX(3px); /* Estiramiento exagerado */
+      }
+      100% {
+        opacity: 1;
+        transform: scaleX(1) translateX(0);
+      }
+    }
+
+    /* Adaptación a móviles */
+    @media (max-width: 820px) {
+      .flow-container {
+        flex-direction: column;
+      }
+      .arrow-icon {
+        transform: rotate(90deg);
+        margin: 5px 0;
+      }
+      @keyframes whipArrow {
+        0% {
+          opacity: 0;
+          transform: rotate(90deg) scaleY(0) translateY(-20px);
+        }
+        75% {
+          opacity: 1;
+          transform: rotate(90deg) scaleY(1.4) translateY(3px);
+        }
+        100% {
+          opacity: 1;
+          transform: rotate(90deg) scaleY(1) translateY(0);
+        }
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="flow-container">
+    
+    <div class="card item-1">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"></path>
+        <polyline points="8 10 12 10 12 14"></polyline>
+        <line x1="12" y1="14" x2="16" y2="14"></line>
+      </svg>
+      <span>Datos</span>
+    </div>
+
+    <div class="arrow-icon item-2">
+      <svg viewBox="0 0 24 24" fill="#6b52be" stroke="none">
+        <polygon points="5,3 19,12 5,21"></polygon>
+      </svg>
+    </div>
+
+    <div class="card item-3">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 3v18h18"></path>
+        <path d="M18 9l-5 5-4-4-3 3"></path>
+        <circle cx="18" cy="9" r="1" fill="#fff"></circle>
+        <circle cx="13" cy="14" r="1" fill="#fff"></circle>
+        <circle cx="9" cy="10" r="1" fill="#fff"></circle>
+      </svg>
+      <span>KPIs</span>
+    </div>
+
+    <div class="arrow-icon item-4">
+      <svg viewBox="0 0 24 24" fill="#6b52be" stroke="none">
+        <polygon points="5,3 19,12 5,21"></polygon>
+      </svg>
+    </div>
+
+    <div class="card item-5">
+      <svg viewBox="0 0 24 24">
+        <rect x="2" y="3" width="20" height="18" rx="2"></rect>
+        <line x1="2" y1="8" x2="22" y2="8"></line>
+        <circle cx="5" cy="5.5" r="0.5" fill="#fff"></circle>
+        <circle cx="7.5" cy="5.5" r="0.5" fill="#fff"></circle>
+        <rect x="5" y="11" width="6" height="7" rx="1"></rect>
+        <rect x="13" y="11" width="6" height="3" rx="1"></rect>
+      </svg>
+      <span>Dashboard</span>
+    </div>
+
+    <div class="arrow-icon item-6">
+      <svg viewBox="0 0 24 24" fill="#6b52be" stroke="none">
+        <polygon points="5,3 19,12 5,21"></polygon>
+      </svg>
+    </div>
+
+    <div class="card item-7">
+      <svg viewBox="0 0 24 24">
+        <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+        <path d="M12 7v4M6 11h12M6 11v3M18 11v3"></path>
+        <rect x="3" y="14" width="6" height="4" rx="1"></rx>
+        <rect x="15" y="14" width="6" height="4" rx="1"></rect>
+      </svg>
+      <span>Decisiones</span>
+    </div>
+
+  </div>
+
+</body>
+</html>
