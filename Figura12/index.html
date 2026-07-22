@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluación de Datos Mensuales - Animado</title>
+  <style>
+    :root {
+      --bg-dark: #222224;
+      --card-bg: #29292c;
+      --border-color: #4a4a4e;
+      --text-main: #e0e0e0;
+      --text-muted: #a0a0a5;
+      --glow-color: rgba(255, 255, 255, 0.9);
+      --line-bg: #3a3a3e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #121214;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* -------------------------------------------------------------
+       1. ANIMACIÓN EFECTO LÁTIGO Y ENTRADA DE LA TARJETA PRINCIPAL
+    ---------------------------------------------------------------- */
+    @keyframes whipEntrance {
+      0% {
+        opacity: 0;
+        transform: scale(0.3) rotate(-12deg) translateY(-200px);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.08) rotate(3deg) translateY(20px);
+      }
+      70% {
+        transform: scale(0.95) rotate(-1.5deg) translateY(-8px);
+      }
+      85% {
+        transform: scale(1.02) rotate(0.8deg) translateY(3px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg) translateY(0);
+      }
+    }
+
+    .dashboard-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 750px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      
+      /* Aplicación del efecto látigo */
+      animation: whipEntrance 1.1s cubic-bezier(0.25, 1.3, 0.5, 1) forwards;
+      transform-origin: center center;
+    }
+
+    /* -------------------------------------------------------------
+       2. ANIMACIONES DESVANECIMIENTO Y ENTRADA DE CONTENIDOS
+    ---------------------------------------------------------------- */
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .title {
+      color: #ffffff;
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      animation: fadeInDown 0.6s ease-out 0.8s forwards;
+    }
+
+    .dashboard-content {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+      opacity: 0;
+      animation: fadeInDown 0.6s ease-out 1s forwards;
+    }
+
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      opacity: 0;
+      animation: fadeInDown 0.4s ease-out forwards;
+    }
+
+    /* Tiempos de retraso (staggering) para cada fila */
+    .col-left .row:nth-child(1) { animation-delay: 1.1s; }
+    .col-left .row:nth-child(2) { animation-delay: 1.25s; }
+    .col-left .row:nth-child(3) { animation-delay: 1.4s; }
+    .col-left .row:nth-child(4) { animation-delay: 1.55s; }
+    .col-left .row:nth-child(5) { animation-delay: 1.7s; }
+
+    .col-right .row:nth-child(2) { animation-delay: 1.85s; }
+    .col-right .row:nth-child(3) { animation-delay: 2.0s; }
+    .col-right .row:nth-child(4) { animation-delay: 2.15s; }
+
+    .label {
+      color: var(--text-main);
+      font-size: 1.1rem;
+      width: 60px;
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      position: relative;
+      flex: 1;
+      height: 2px;
+      background-color: var(--line-bg);
+      display: flex;
+      align-items: center;
+      overflow: visible;
+    }
+
+    /* -------------------------------------------------------------
+       3. ANIMACIÓN DE LLENADO DE BARRAS
+    ---------------------------------------------------------------- */
+    @keyframes fillBar {
+      from {
+        width: 0%;
+      }
+      to {
+        width: var(--target-width);
+      }
+    }
+
+    .bar-fill {
+      position: absolute;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.9) 80%, #ffffff 100%);
+      box-shadow: 0 0 8px var(--glow-color), 0 0 12px var(--glow-color);
+      border-radius: 2px;
+      width: 0%;
+      animation: fillBar 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Retrasos para sincronizar el llenado con la aparición de la fila */
+    .col-left .row:nth-child(1) .bar-fill { animation-delay: 1.2s; }
+    .col-left .row:nth-child(2) .bar-fill { animation-delay: 1.35s; }
+    .col-left .row:nth-child(3) .bar-fill { animation-delay: 1.5s; }
+    .col-left .row:nth-child(4) .bar-fill { animation-delay: 1.65s; }
+    .col-left .row:nth-child(5) .bar-fill { animation-delay: 1.8s; }
+
+    .col-right .row:nth-child(2) .bar-fill { animation-delay: 1.95s; }
+    .col-right .row:nth-child(3) .bar-fill { animation-delay: 2.1s; }
+    .col-right .row:nth-child(4) .bar-fill { animation-delay: 2.25s; }
+
+    /* -------------------------------------------------------------
+       4. ANIMACIÓN DE PULSACIÓN EN EL PUNTO GLOW
+    ---------------------------------------------------------------- */
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 8px 2px #ffffff, 0 0 16px 5px rgba(255, 255, 255, 0.6);
+        transform: translateY(-50%) scale(1);
+      }
+      50% {
+        box-shadow: 0 0 12px 4px #ffffff, 0 0 24px 8px rgba(255, 255, 255, 0.9);
+        transform: translateY(-50%) scale(1.25);
+      }
+    }
+
+    .bar-dot {
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      background-color: #ffffff;
+      border-radius: 50%;
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+
+    /* -------------------------------------------------------------
+       5. ANIMACIÓN POP-IN PARA EL CUADRO DE RESUMEN
+    ---------------------------------------------------------------- */
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      80% {
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .summary-box {
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background-color: rgba(0, 0, 0, 0.1);
+      margin-bottom: 8px;
+      opacity: 0;
+      animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 1.6s forwards;
+    }
+
+    .summary-item {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .summary-item strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-card">
+    <h2 class="title">Evaluación de Datos Mensuales</h2>
+    
+    <div class="dashboard-content">
+      
+      <!-- Columna Izquierda (Mes 1 a Mes 5) -->
+      <div class="bar-group col-left">
+        <div class="row">
+          <span class="label">Mes 1</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="--target-width: 35%;">
+              <div class="bar-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="label">Mes 2</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="--target-width: 70%;">
+              <div class="bar-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="label">Mes 3</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="--target-width: 95%;">
+              <div class="bar-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="label">Mes 4</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="--target-width: 60%;">
+              <div class="bar-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="label">Mes 5</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="--target-width: 72%;">
+              <div class="bar-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Derecha (Resumen y Meses 3 a 5 adicionales) -->
+      <div class="bar-group col-right">
+        
+        <!-- Recuadro informativo superior -->
+        <div class="summary-box">
+          <div class="summary-item">
+            Crecimiento total: <strong>18%</strong>
+          </div>
+          <div class="summary-item">
+            Punto Máximo: <strong>Mes 3 &amp; 7</strong>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="label">Mes 6</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="--target-width: 80%;">
+              <div class="bar-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="label">Mes 7</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="--target-width: 65%;">
+              <div class="bar-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="label">Mes 8</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="--target-width: 98%;">
+              <div class="bar-dot"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
