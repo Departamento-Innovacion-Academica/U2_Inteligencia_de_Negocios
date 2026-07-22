@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrusel - Algoritmos de Machine Learning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
+            text-align: left;
+        }
+
+        .carousel-container {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.15);
+            overflow: hidden;
+        }
+
+        .carousel-track-container {
+            overflow: hidden;
+            width: 100%;
+            border-radius: 24px 24px 0 0;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: transform;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            padding: 2.5rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            text-align: left;
+            opacity: 0.4;
+            transition: opacity 0.4s ease;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .slide-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: linear-gradient(90deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .slide-text {
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+            font-weight: 300;
+        }
+
+        .section-subtitle {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #38bdf8;
+            margin-top: 0.5rem;
+        }
+
+        .bullet-list {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .quote-box {
+            font-style: italic;
+            color: #f472b6;
+            background: rgba(244, 114, 182, 0.08);
+            border-left: 4px solid #f472b6;
+            padding: 0.85rem 1.25rem;
+            border-radius: 0 12px 12px 0;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .code-container {
+            background-color: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.88rem;
+            overflow-x: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+            margin: 0.5rem 0;
+        }
+
+        .code-container code {
+            white-space: pre;
+            display: block;
+            line-height: 1.5;
+        }
+
+        /* Syntax Highlighting */
+        .kw {
+            color: #f43f5e;
+            font-weight: bold;
+        }
+
+        /* Keywords: from, import */
+        .func {
+            color: #38bdf8;
+        }
+
+        /* Functions: DecisionTreeClassifier, LinearRegression */
+        .var {
+            color: #e2e8f0;
+        }
+
+        /* Variables */
+        .comment {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        /* Comments */
+        .num {
+            color: #f59e0b;
+        }
+
+        /* Numbers */
+        .str {
+            color: #34d399;
+        }
+
+        /* Strings */
+
+        .footer-text {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-style: normal;
+        }
+
+        /* Navigation Controls */
+        .carousel-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2.5rem;
+            background: rgba(15, 23, 42, 0.4);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-btn:hover {
+            background: #6366f1;
+            border-color: #6366f1;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .carousel-dots {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: #818cf8;
+            width: 28px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(129, 140, 248, 0.6);
+        }
+
+        @media (max-width: 640px) {
+            .carousel-slide {
+                padding: 1.5rem;
+            }
+
+            .carousel-nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .slide-title {
+                font-size: 1.4rem;
+            }
+
+            .code-container {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="carousel-container">
+        <div class="carousel-track-container">
+            <div class="carousel-track" id="track">
+
+                <!-- Slide 1 -->
+                <div class="carousel-slide active">
+                    <h2 class="slide-title">a) Clasificación</h2>
+                    <p class="slide-text">La clasificación consiste en asignar una categoría a un conjunto de datos en
+                        función de sus características. Se utiliza ampliamente en escenarios donde se requiere tomar
+                        decisiones basadas en etiquetas predefinidas.</p>
+
+                    <div class="section-subtitle">Ejemplo:</div>
+                    <ul class="bullet-list">
+                        <li>Clasificar clientes como "alto valor" o "bajo valor".</li>
+                        <li>Detección de fraude.</li>
+                    </ul>
+
+                    <div class="section-subtitle">Ejemplo conceptual en Python</div>
+                    <div class="code-container">
+                        <code><span class="kw">from</span> sklearn.tree <span class="kw">import</span> <span class="func">DecisionTreeClassifier</span>
+
+<span class="comment"># Datos de ejemplo</span>
+<span class="var">X</span> = [[<span class="num">25</span>, <span class="num">3000</span>], [<span class="num">40</span>, <span class="num">8000</span>], [<span class="num">35</span>, <span class="num">5000</span>]]
+<span class="var">y</span> = [<span class="num">0</span>, <span class="num">1</span>, <span class="num">1</span>] <span class="comment"># 0 = bajo valor, 1 = alto valor</span>
+
+<span class="var">model</span> = <span class="func">DecisionTreeClassifier</span>()
+<span class="var">model</span>.<span class="func">fit</span>(<span class="var">X</span>, <span class="var">y</span>)
+<span class="var">predicción</span> = <span class="var">model</span>.<span class="func">predict</span>([[<span class="num">30</span>, <span class="num">6000</span>]])
+<span class="func">print</span>(<span class="var">prediccion</span>)</code>
+                    </div>
+
+                    <p class="footer-text">Este modelo permite clasificar un nuevo cliente según sus características.
+                    </p>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="carousel-slide">
+                    <h2 class="slide-title">b) Clustering (agrupamiento)</h2>
+                    <p class="slide-text">El clustering agrupa datos en función de su similitud, sin necesidad de
+                        etiquetas previas. Es útil para segmentar clientes o identificar patrones en grandes volúmenes
+                        de datos.</p>
+
+                    <div class="section-subtitle">Ejemplo:</div>
+                    <ul class="bullet-list">
+                        <li>Segmentación de clientes.</li>
+                        <li>Agrupación de productos.</li>
+                    </ul>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="carousel-slide">
+                    <h2 class="slide-title">c) Regresión</h2>
+                    <p class="slide-text">La regresión se utiliza para predecir valores numéricos continuos. Es una de
+                        las técnicas más utilizadas en análisis predictivo.</p>
+
+                    <div class="section-subtitle">Ejemplo:</div>
+                    <ul class="bullet-list">
+                        <li>Predicción de ventas.</li>
+                        <li>Estimación de ingresos.</li>
+                    </ul>
+
+                    <div class="section-subtitle">Ejemplo simple de regresión</div>
+                    <div class="code-container">
+                        <code><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> <span class="func">LinearRegression</span>
+
+<span class="var">X</span> = [[<span class="num">1</span>], [<span class="num">2</span>], [<span class="num">3</span>], [<span class="num">4</span>]]
+<span class="var">y</span> = [<span class="num">100</span>, <span class="num">120</span>, <span class="num">140</span>, <span class="num">160</span>]
+
+<span class="var">model</span> = <span class="func">LinearRegression</span>()
+<span class="var">model</span>.<span class="func">fit</span>(<span class="var">X</span>, <span class="var">y</span>)
+<span class="func">print</span>(<span class="var">model</span>.<span class="func">predict</span>([[<span class="num">5</span>]]))</code>
+                    </div>
+
+                    <p class="footer-text">Este modelo permite estimar un valor futuro basado en una tendencia.</p>
+                </div>
+
+                <!-- Slide 4 -->
+                <div class="carousel-slide">
+                    <h2 class="slide-title">d) Reglas de asociación</h2>
+                    <p class="slide-text">Las reglas de asociación permiten identificar relaciones entre variables en
+                        grandes conjuntos de datos.</p>
+
+                    <div class="section-subtitle">Ejemplo clásico:</div>
+                    <ul class="bullet-list">
+                        <li>Análisis de canasta de mercado (market basket analysis).</li>
+                    </ul>
+
+                    <div class="quote-box">
+                        “Los clientes que compran pan también compran leche”.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="carousel-nav">
+            <button class="nav-btn" id="prevBtn" aria-label="Anterior">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+
+            <div class="carousel-dots" id="dotsContainer"></div>
+
+            <button class="nav-btn" id="nextBtn" aria-label="Siguiente">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const track = document.getElementById('track');
+        const slides = Array.from(track.children);
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const dotsContainer = document.getElementById('dotsContainer');
+
+        let currentIndex = 0;
+
+        // Generar puntos indicadores
+        slides.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(index));
+            dotsContainer.appendChild(dot);
+        });
+
+        const dots = Array.from(dotsContainer.children);
+
+        function updateCarousel() {
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+            slides.forEach((slide, idx) => {
+                if (idx === currentIndex) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            dots.forEach((dot, idx) => {
+                if (idx === currentIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            updateCarousel();
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % slides.length;
+            updateCarousel();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            updateCarousel();
+        });
+
+        // Soporte para gestos táctiles (Swipe)
+        let startX = 0;
+        let endX = 0;
+
+        const container = document.querySelector('.carousel-container');
+
+        container.addEventListener('touchstart', (e) => {
+            startX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            endX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const threshold = 40;
+            if (startX - endX > threshold) {
+                // Swipe izquierda -> Siguiente
+                currentIndex = (currentIndex + 1) % slides.length;
+                updateCarousel();
+            } else if (endX - startX > threshold) {
+                // Swipe derecha -> Anterior
+                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                updateCarousel();
+            }
+        }
+    </script>
+</body>
+
+</html>
