@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptación de Infografía Mejorada (Poppins, Animaciones, Hover)</title>
+    <!-- Importar la fuente Poppins desde Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos Globales */
+        body {
+            font-family: 'Poppins', sans-serif; /* Fuente Poppins aplicada */
+            margin: 0;
+            background-color: #e0e5ec; /* Fondo sutil con toque neumórfico */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        /* Contenedor Principal con Neumorfismo */
+        .analytics-container {
+            max-width: 1000px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Dos columnas en pantallas grandes */
+            gap: 30px; /* Espacio entre los pasos */
+            background-color: #e0e5ec;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 10px 10px 30px #bebebe,
+                        -10px -10px 30px #ffffff;
+        }
+
+        /* Estilos de cada Paso (Tarjeta) */
+        .analytics-step {
+            background-color: #e0e5ec;
+            border-radius: 15px;
+            box-shadow: 7px 7px 15px #bebebe,
+                        -7px -7px 15px #ffffff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease; /* Transición para el efecto hover */
+            opacity: 0; /* Inicialmente invisible para la animación */
+            transform: translateY(30px); /* Inicialmente movido para la animación */
+            animation-duration: 0.5s;
+            animation-timing-function: ease-out;
+            animation-fill-mode: forwards; /* Mantiene el estado final */
+        }
+
+        /* --- Animaciones de Entrada --- */
+        @keyframes fadeInSlideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Aplicar animación con retrasos para un efecto en cascada */
+        .step-1 { animation-name: fadeInSlideIn; animation-delay: 0.1s; }
+        .step-2 { animation-name: fadeInSlideIn; animation-delay: 0.2s; }
+        .step-3 { animation-name: fadeInSlideIn; animation-delay: 0.3s; }
+        .step-4 { animation-name: fadeInSlideIn; animation-delay: 0.4s; }
+
+        /* --- Efecto Hover Mejorado --- */
+        .analytics-step:hover {
+            transform: translateY(-8px) scale(1.02); /* Movimiento y zoom sutil */
+            box-shadow: 15px 15px 40px rgba(0, 0, 0, 0.1),
+                        -15px -15px 40px rgba(255, 255, 255, 0.6);
+        }
+
+        /* Cambiar el fondo del número al pasar el ratón */
+        .analytics-step:hover .step-number-wrapper {
+            background-color: transparent !important; /* Quita el fondo de color */
+        }
+
+        .analytics-step:hover .step-number-wrapper span {
+            color: inherit !important; /* El número hereda el color del título al hover */
+        }
+
+        /* Contenedor del Número */
+        .step-number-wrapper {
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 6rem; /* Número más grande */
+            font-weight: 900; /* Extra bold Poppins */
+            position: relative;
+            transition: background-color 0.3s ease; /* Transición para el hover */
+        }
+
+        /* Efecto de 'recorte' para el número (adaptado para el nuevo diseño) */
+        .step-number-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            background-color: #e0e5ec;
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+        .step-number-wrapper span {
+            z-index: 2; /* El número sobre el efecto de recorte */
+            position: relative;
+            transition: color 0.3s ease; /* Transición para el color en hover */
+        }
+
+        /* Contenedor del Texto */
+        .step-content {
+            padding: 25px;
+            flex-grow: 1;
+            z-index: 2;
+        }
+
+        /* Estilos de Texto (con Poppins) */
+        .step-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .step-subtitle {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .step-list {
+            margin: 0;
+            padding-left: 20px;
+            list-style-type: disc;
+            color: #666;
+        }
+
+        .step-list li {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        /* --- Paleta de Colores Específica --- */
+
+        /* Paso 1: Descriptivo (Turquesa) */
+        .step-1 .step-number-wrapper {
+            background-color: #00b4b4;
+            color: #ffffff;
+        }
+        .step-1 .step-title {
+            color: #00b4b4; /* Título color turquesa */
+        }
+        .step-1:hover .step-number-wrapper span {
+            color: #00b4b4 !important; /* Número turquesa en hover */
+        }
+
+        /* Paso 2: Diagnóstico (Rojo Coral) */
+        .step-2 .step-number-wrapper {
+            background-color: #e65151;
+            color: #ffffff;
+        }
+        .step-2 .step-title {
+            color: #e65151; /* Título color rojo */
+        }
+        .step-2:hover .step-number-wrapper span {
+            color: #e65151 !important; /* Número rojo en hover */
+        }
+
+        /* Paso 3: Predictivo (Naranja Cálido) */
+        .step-3 .step-number-wrapper {
+            background-color: #f7a01a;
+            color: #ffffff;
+        }
+        .step-3 .step-title {
+            color: #f7a01a; /* Título color naranja */
+        }
+        .step-3:hover .step-number-wrapper span {
+            color: #f7a01a !important; /* Número naranja en hover */
+        }
+
+        /* Paso 4: Prescriptivo (Verde Lima Profundo) */
+        .step-4 .step-number-wrapper {
+            background-color: #6da71c;
+            color: #ffffff;
+        }
+        .step-4 .step-title {
+            color: #6da71c; /* Título color verde */
+        }
+        .step-4:hover .step-number-wrapper span {
+            color: #6da71c !important; /* Número verde en hover */
+        }
+
+        /* --- Adaptabilidad (Media Queries) --- */
+
+        @media (max-width: 768px) {
+            .analytics-container {
+                grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+            }
+
+            .step-number-wrapper {
+                height: 120px;
+                font-size: 5rem;
+            }
+
+            .step-title {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="analytics-container">
+
+        <!-- Paso 1 -->
+        <div class="analytics-step step-1">
+            <div class="step-number-wrapper">
+                <span>1</span>
+            </div>
+            <div class="step-content">
+                <h2 class="step-title">Descriptivo</h2>
+                <p class="step-subtitle">Comprensión inicial de lo que sucedió.</p>
+                <ul class="step-list">
+                    <li>Recopilación y Limpieza</li>
+                    <li>Visualización Básica</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="analytics-step step-2">
+            <div class="step-number-wrapper">
+                <span>2</span>
+            </div>
+            <div class="step-content">
+                <h2 class="step-title">Diagnóstico</h2>
+                <p class="step-subtitle">Identificación de las causas subyacentes.</p>
+                <ul class="step-list">
+                    <li>Análisis de Correlación</li>
+                    <li>Búsqueda de Anomalías</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Paso 3 -->
+        <div class="analytics-step step-3">
+            <div class="step-number-wrapper">
+                <span>3</span>
+            </div>
+            <div class="step-content">
+                <h2 class="step-title">Predictivo</h2>
+                <p class="step-subtitle">Pronóstico de tendencias futuras.</p>
+                <ul class="step-list">
+                    <li>Modelos de Probabilidad</li>
+                    <li>Algoritmos de IA</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Paso 4 -->
+        <div class="analytics-step step-4">
+            <div class="step-number-wrapper">
+                <span>4</span>
+            </div>
+            <div class="step-content">
+                <h2 class="step-title">Prescriptivo</h2>
+                <p class="step-subtitle">Recomendación de la mejor acción.</p>
+                <ul class="step-list">
+                    <li>Optimización de Decisiones</li>
+                    <li>Simulación de Escenarios</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
