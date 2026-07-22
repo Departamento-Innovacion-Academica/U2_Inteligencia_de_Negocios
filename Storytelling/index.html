@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flip Cards Interactiva - Análisis de Datos</title>
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #F8F9FD;
+            --card-bg: #FFFFFF;
+            --primary-purple: #5243AA;
+            --accent-purple: #7052FF;
+            --text-dark: #172B4D;
+            --text-muted: #5E6C84;
+            --border-line: #6C5CE7;
+            --shadow-soft: 0 10px 30px rgba(82, 67, 170, 0.08);
+            --shadow-hover: 0 20px 40px rgba(82, 67, 170, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease-out forwards;
+        }
+
+        .header-title h1 {
+            font-weight: 700;
+            font-size: 2.2rem;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            font-weight: 400;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Contenedor Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+            perspective: 1200px;
+        }
+
+        /* Animación estilo látigo (Whip entrance effect) */
+        @keyframes whipIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-200px) rotate(-25deg) scale(0.6);
+            }
+            60% {
+                opacity: 1;
+                transform: translateX(25px) rotate(8deg) scale(1.05);
+            }
+            75% {
+                transform: translateX(-10px) rotate(-3deg) scale(0.98);
+            }
+            90% {
+                transform: translateX(4px) rotate(1deg) scale(1.01);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) rotate(0deg) scale(1);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tarjeta Contenedor 3D */
+        .card-container {
+            height: 240px;
+            cursor: pointer;
+            position: relative;
+            opacity: 0;
+            animation: whipIn 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        /* Retardo en cascada para el látigo */
+        .card-container:nth-child(1) { animation-delay: 0.1s; }
+        .card-container:nth-child(2) { animation-delay: 0.25s; }
+        .card-container:nth-child(3) { animation-delay: 0.4s; }
+        .card-container:nth-child(4) { animation-delay: 0.55s; }
+        .card-container:nth-child(5) { animation-delay: 0.7s; }
+
+        /* Elemento Flip */
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 16px;
+        }
+
+        .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* Caras de la Tarjeta */
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            padding: 28px 24px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            text-align: left; /* Alineación estricta a la izquierda */
+            border-top: 4px solid var(--border-line);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card-container:hover .card-front,
+        .card-container:hover .card-back {
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Frontal */
+        .card-front .number {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .card-front .title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: auto;
+            line-height: 1.3;
+        }
+
+        .card-front .click-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent-purple);
+        }
+
+        .card-front .click-hint svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .card-container:hover .click-hint svg {
+            transform: translateX(4px);
+        }
+
+        /* Trasera */
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(145deg, #FFFFFF, #F4F3FF);
+            border-top: 4px solid var(--accent-purple);
+        }
+
+        .card-back .back-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(108, 92, 231, 0.15);
+            padding-bottom: 8px;
+        }
+
+        .card-back .back-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+        }
+
+        .card-back .back-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .card-back .content {
+            font-size: 0.9rem;
+            color: #344563;
+            line-height: 1.55;
+            font-weight: 400;
+            text-align: left;
+        }
+
+        .card-back .example-box {
+            margin-top: 12px;
+            padding: 8px 12px;
+            background-color: rgba(112, 82, 255, 0.08);
+            border-left: 3px solid var(--accent-purple);
+            border-radius: 4px;
+            font-size: 0.82rem;
+            color: var(--primary-purple);
+            font-weight: 500;
+        }
+
+        .card-back .back-hint {
+            margin-top: auto;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-title">
+        <h1>Proceso de Análisis de Datos</h1>
+        <p>Haga clic sobre las tarjetas para ampliar la información</p>
+    </div>
+
+    <div class="cards-grid">
+
+        <!-- 01 Contexto -->
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card-inner">
+                <div class="card-front">
+                    <span class="number">01</span>
+                    <h2 class="title">Contexto</h2>
+                    <div class="click-hint">
+                        <span>Ver información</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                </div>
+                <div class="card-back">
+                    <div class="back-header">
+                        <span class="back-title">Contexto</span>
+                        <span class="back-number">01</span>
+                    </div>
+                    <p class="content">Define el problema o situación que se desea analizar.</p>
+                    <div class="example-box">
+                        <strong>Ejemplo:</strong> disminución en las ventas.
+                    </div>
+                    <div class="back-hint">
+                        <span>Clic para volver</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 02 Datos relevantes -->
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card-inner">
+                <div class="card-front">
+                    <span class="number">02</span>
+                    <h2 class="title">Datos relevantes</h2>
+                    <div class="click-hint">
+                        <span>Ver información</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                </div>
+                <div class="card-back">
+                    <div class="back-header">
+                        <span class="back-title">Datos relevantes</span>
+                        <span class="back-number">02</span>
+                    </div>
+                    <p class="content">Seleccionar únicamente los datos necesarios para respaldar el análisis.</p>
+                    <div class="back-hint">
+                        <span>Clic para volver</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 03 Visualización adecuada -->
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card-inner">
+                <div class="card-front">
+                    <span class="number">03</span>
+                    <h2 class="title">Visualización adecuada</h2>
+                    <div class="click-hint">
+                        <span>Ver información</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                </div>
+                <div class="card-back">
+                    <div class="back-header">
+                        <span class="back-title">Visualización adecuada</span>
+                        <span class="back-number">03</span>
+                    </div>
+                    <p class="content">Utilizar gráficos que permitan resaltar los hallazgos principales.</p>
+                    <div class="back-hint">
+                        <span>Clic para volver</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 04 Insight -->
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card-inner">
+                <div class="card-front">
+                    <span class="number">04</span>
+                    <h2 class="title">Insight</h2>
+                    <div class="click-hint">
+                        <span>Ver información</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                </div>
+                <div class="card-back">
+                    <div class="back-header">
+                        <span class="back-title">Insight</span>
+                        <span class="back-number">04</span>
+                    </div>
+                    <p class="content">Interpretación de los datos que explica lo que está ocurriendo.</p>
+                    <div class="back-hint">
+                        <span>Clic para volver</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 05 Recomendación -->
+        <div class="card-container" onclick="flipCard(this)">
+            <div class="card-inner">
+                <div class="card-front">
+                    <span class="number">05</span>
+                    <h2 class="title">Recomendación</h2>
+                    <div class="click-hint">
+                        <span>Ver información</span>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                </div>
+                <div class="card-back">
+                    <div class="back-header">
+                        <span class="back-title">Recomendación</span>
+                        <span class="back-number">05</span>
+                    </div>
+                    <p class="content">Propuesta de acción basada en el análisis realizado.</p>
+                    <div class="back-hint">
+                        <span>Clic para volver</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function flipCard(element) {
+            element.classList.toggle('flipped');
+        }
+    </script>
+</body>
+</html>
